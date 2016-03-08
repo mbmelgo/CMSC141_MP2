@@ -42,15 +42,24 @@ public class DFA {
             doOperations();
             writeFile();
         }
+        try {
+            System.in.read();
+        } catch (IOException ex) {
+            Logger.getLogger(DFA.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    boolean readFile() {
+    boolean readFile() {//READ INPUT FILE
         try {
             File file = new File(path);
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             String line = null;
             while ((line = br.readLine()) != null) {
+                /*
+                    IF LINE IS EMPTY, JUST ADD IT IN THE LIST OF INSTRUCTIONS
+                    TO MAINTAIN LINE EQUALITY FOR OUTPUT PURPOSES
+                */
                 if (line.trim().equals("")) {
                     Instructions instruc = new Instructions();
                     instruc.emptyLine = true;
@@ -62,6 +71,9 @@ public class DFA {
                 line = Arrays.toString(line.split("\\s+"));
                 Instructions instruc = new Instructions();
                 instruc.listOfProcedures = new char[line.toCharArray().length];
+                /*
+                    DISTINGUISH THE VALIDITY OF THE LINE
+                */
                 for (int i = 1; i < line.toCharArray().length - 1; i++) {
                     if (line.toCharArray()[i] == 'L' || line.toCharArray()[i] == 'l'
                             || line.toCharArray()[i] == 'R' || line.toCharArray()[i] == 'r'
@@ -87,9 +99,12 @@ public class DFA {
         return true;
     }
 
-    void doOperations() {
+    void doOperations() {//EXECUTE OPERATIONS
         loadingScreen("Executing_Operations");
         for (Instructions instruc : listOfInstructions) {
+            /*
+                CHECKS IF LINE IS VALID AND NOT AN EMPTY LINE
+            */
             if (instruc.valid && !instruc.emptyLine) {
                 String base = "LRC";
                 String farm = "";
@@ -97,7 +112,21 @@ public class DFA {
                 boolean ok = true;
                 for (int i = 1; i < instruc.listOfProcedures.length - 1; i++) {
                     char persona = identify(instruc.listOfProcedures[i]);
+                    /*
+                        CHECKS IF IS GOING TO FARM OR FROM FARM, THIS ACTS AS 
+                        WHERE THE MAN IS SINCE MY PROGRAM DOES NOT HAVE A VARIABLE MAN
+                    */
                     if (isGoingToFarm) {
+                        /*
+                            CHECKS THE PERSONA THAT WILL BE RIDING THE BOAT
+                            AND IF IT IS NOTHING THEN IT JUST SKIPS
+                            IF PERSONA IS EITHER LION OR RABBIT OR CARROT
+                            IT CHECKS IF THE PERSONA IS IN THE PLACE AND CAN BE 
+                            TAKEN TO RIDE THE BOAT
+                            IF THE PERSONA IS PRESENT THEN THE PROGRAM WILL REMOVE
+                            IT FROM IT'S CURRENT PLACE AND ADD IT TO THE PLACE 
+                            IT WILL BE TAKEN 
+                        */
                         if (persona != 'N') {
                             String tmp = ""+persona;
                             if(!base.contains(tmp)){
@@ -132,6 +161,12 @@ public class DFA {
                     }
                 }
                 if (ok) {
+                    /*
+                        IF IT WAS SUCCESSFUL IN EXECUTING THE OPERATIONS
+                        CHECK IF THE BASE IS EMPTY AND THE FARM HAS ALL 3 
+                        PERSONA, LION, RABBIT AND CARROT,ALSO CHECKS IF 
+                        THE MAN IS IN THE FARM
+                    */
                     if(base.isEmpty()&&farm.contains("L")
                             &&farm.contains("R")&&farm.contains("C")
                             && !isGoingToFarm){
@@ -155,6 +190,9 @@ public class DFA {
     }
 
     boolean checkStatus(String location) {
+        /*
+            FUNCTION THAT CHECKS THE NON ALLOWED MOVES
+        */
         if (location.contains("L") && location.contains("R")) {
             return false;
         }
@@ -166,6 +204,9 @@ public class DFA {
     }
 
     char identify(char persona) {
+        /*
+            FUNCTION THAT CHECKS THE PERSONA
+        */
         if (persona == 'L' || persona == 'l') {
             return 'L';
         } else if (persona == 'R' || persona == 'r') {
@@ -177,7 +218,7 @@ public class DFA {
         return 'N';
     }
 
-    void writeFile() {
+    void writeFile() {// WRITES OUTPUT TO FILE
         loadingScreen("Writing_Output_To_File");
         FileWriter writer = null;
         try {
@@ -206,7 +247,7 @@ public class DFA {
 //        }
     }
 
-    void loadingScreen(String s) {
+    void loadingScreen(String s) {//SIMULATE A LOADING SCREEN FOR FUN PURPOSES 
         String load = s + "[                    ]";
         int j = 13;
         for (int i = 0; i < 200; i++) {
@@ -226,7 +267,9 @@ public class DFA {
     }
 
     private class Instructions {
-
+        /*
+            A CLASS THAT HOLDS THE INSTRUCTIONS/PROCEDURES ON THE INPUTS
+        */
         char[] listOfProcedures;
         boolean valid = true;
         boolean emptyLine = false;
